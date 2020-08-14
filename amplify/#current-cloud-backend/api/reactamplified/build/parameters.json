@@ -1,0 +1,8 @@
+{
+    "CreateAPIKey": 1,
+    "AppSyncApiName": "reactamplified",
+    "DynamoDBBillingMode": "PAY_PER_REQUEST",
+    "DynamoDBEnableServerSideEncryption": false,
+    "S3DeploymentBucket": "amplify-reactamplified-dev-104848-deployment",
+    "S3DeploymentRootKey": "amplify-appsync-files/6c4423257b0b456e9aebca805d1246966e1a7fa4"
+}
