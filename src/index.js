@@ -1,21 +1,65 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
-import Amplify from "aws-amplify";
-import awsExports from "./aws-exports";
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
+import { configureAmplify, SetS3Config } from "./services";
+import Storage from "@aws-amplify/storage";
+import "./styles.css";
 
-Amplify.configure(awsExports);
+class App extends Component {
+  state = {
+    imageName: "",
+    imageFile: "",
+    response: ""
+  };
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+  uploadImage = () => {
+    SetS3Config("validator-bucket-amplify", "protected");
+    Storage.put(`userimages/${this.upload.files[0].name}`,
+                this.upload.files[0],
+                { contentType: this.upload.files[0].type })
+      .then(result => {
+        this.upload = null;
+        this.setState({ response: "Success uploading file!" });
+      })
+      .catch(err => {
+        this.setState({ response: `Cannot uploading file: ${err}` });
+      });
+  };
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+  render() {
+    return (
+      <div className="App">
+        <h2>S3 Upload example...</h2>
+        <input
+          type="file"
+          accept="image/png, image/jpeg" //THIS RESTRICTS THE FILE TYPE
+          style={{ display: "none" }}
+          ref={ref => (this.upload = ref)}
+          onChange={e =>
+            this.setState({
+              imageFile: this.upload.files[0],
+              imageName: this.upload.files[0].name
+            })
+          }
+        />
+        <input value={this.state.imageName} placeholder="Select file" />
+        <button
+          onClick={e => {
+            this.upload.value = null;
+            this.upload.click();
+          }}
+          loading={this.state.uploading}
+        >
+          Browse
+        </button>
+
+        <button onClick={this.uploadImage}> Upload File </button>
+
+        {!!this.state.response && <div>{this.state.response}</div>}
+      </div>
+    );
+  }
+}
+
+configureAmplify();
+const rootElement = document.getElementById("root");
+ReactDOM.render(<App />, rootElement);
